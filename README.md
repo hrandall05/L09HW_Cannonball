@@ -13,9 +13,26 @@ A Streamlit web app that simulates and visualizes cannonball trajectories using 
 ## Usage
 
 ```
-python3 -m streamlit run L09HW_Cannonball/main_cli.py
-or
-python3 -m streamlit run main_cli.py
+cd /workspaces/cop2080-main-private/L09HW_Cannonball
+python3 -m streamlit run main.py
+```
+
+## Setup
+
+### Option 1: `uv` (locked, reproducible)
+
+```bash
+cd /workspaces/cop2080-main-private/L09HW_Cannonball
+uv sync
+uv run streamlit run main.py
+```
+
+### Option 2: `pip` (from exported lock)
+
+```bash
+cd /workspaces/cop2080-main-private/L09HW_Cannonball
+python3 -m pip install -r requirements.txt
+python3 -m streamlit run main.py
 ```
 
 ## Controls
@@ -41,4 +58,3 @@ Models a projectile using basic kinematics. Tracks x/y position and velocity com
 - `streamlit`
 - `altair`
 - `pandas`
-
