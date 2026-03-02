@@ -61,6 +61,32 @@ class Cannonball:
 
         return xs, ys
 
+# crazzyball class that inherits from cannonball and adds random movement to the trajectory
+class Crazyball(Cannonball):
+    def init__(self, x):
+        super().__init__(x)
+
+    #modified move method that adds random movement to the trajectory
+    def move(self, sec, grav):
+        self.rand_q = random.randrange(0, 10)
+        if self.getX() < 50:
+            dx = self._vx * sec + random.uniform(-0.5, 0.5)
+        else if self.getX() < 100:
+            dx = self._vx * sec + random.uniform(-1, 1)
+        else if self.getX() < 200:
+            dx = self._vx * sec + random.uniform(-2, 2)
+        else if self.getX() < 400:
+            dx = self._vx * sec + random.uniform(-4, 4)
+        else:
+            dx = self._vx * sec + random.uniform(-8, 8)
+
+
+        self._vy = self._vy - grav * sec
+
+        self._x = self._x + dx
+        self._y = self._y + dy
+
+
 def run_app():
     st.title("Cannonball Trajectory")
 
@@ -69,7 +95,8 @@ def run_app():
     )
     velocity = st.selectbox("Initial velocity", options=[15, 25, 40], index=1)
 
-    gravity_options = {"Earth": 9.81}
+    #crazy ball option with random gravity between 0.5 and 2 times the gravity of earth
+    gravity_options = {"Earth": 9.81, "Crazyball": 9.81*random.uniform(0.5, 2)}
     gravity_name = st.selectbox("Gravity", options=list(gravity_options.keys()), index=0)
     gravity = gravity_options[gravity_name]
     step = .1
@@ -79,7 +106,10 @@ def run_app():
 
     if simulate:
         angle_rad = radians(angle_deg)
-        ball = Cannonball(0)
+        if gravity_name == "Crazyball":
+            ball = Crazyball(0)
+        else:
+            ball = Cannonball(0)
         xs, ys = ball.shoot(angle_rad, velocity, gravity, step)
 
         if not xs:
