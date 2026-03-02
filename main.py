@@ -70,22 +70,42 @@ class Crazyball(Cannonball):
     def move(self, sec, grav):
         self.rand_q = random.randrange(0, 10)
         if self.getX() < 50:
-            dx = self._vx * sec + random.uniform(-0.5, 0.5)
-        else if self.getX() < 100:
             dx = self._vx * sec + random.uniform(-1, 1)
-        else if self.getX() < 200:
-            dx = self._vx * sec + random.uniform(-2, 2)
-        else if self.getX() < 400:
+        elif self.getX() < 100:
+            dx = self._vx * sec + random.uniform(-3, 3)
+        elif self.getX() < 200:
             dx = self._vx * sec + random.uniform(-4, 4)
-        else:
+        elif self.getX() < 400:
             dx = self._vx * sec + random.uniform(-8, 8)
+        else:
+            dx = self._vx * sec + random.uniform(-16, 16)
 
-
+        dy = self._vy * sec + random.uniform(-0.5, 0.5)
         self._vy = self._vy - grav * sec
-
         self._x = self._x + dx
         self._y = self._y + dy
 
+class Print_Iface:
+    """Handles chart rendering for path of the cannonball"""
+    def main_print(self, xs,ys, title = "Cannonball Trajectory"):
+        # builds a Altair line chart from trajectoy data
+        if not xs:
+            st.warning("No trajectory points were generated.")
+            return
+        
+        df = pd.DataFrame({"x": xs, "y": ys})
+
+        chart = (
+            alt.Chart(df)
+            .mark_line()
+            .encode(
+                # 
+                x = alt.X("x:Q", scale= alt.Scale(domain =[0 , max(xs) *1.05]), title = "Distance (m)"),
+                y = alt.Y("y:Q", scale= alt.Scale(domain =[0 , max(ys) *1.1]), title = "Height (m)"),
+            )
+            .properties(width=700, height=400, title = title)
+        )
+        st.altair_chart(chart, use_container_width=True)
 
 def run_app():
     st.title("Cannonball Trajectory")
@@ -95,8 +115,12 @@ def run_app():
     )
     velocity = st.selectbox("Initial velocity", options=[15, 25, 40], index=1)
 
-    #crazy ball option with random gravity between 0.5 and 2 times the gravity of earth
-    gravity_options = {"Earth": 9.81, "Crazyball": 9.81*random.uniform(0.5, 2)}
+    
+    gravity_options = {
+        "Earth": 9.81, # Earth surface gravity = 9.81 m/s^2
+        "Moon": 1.62, # Moon surface gravity = 1.62 m/s^2
+        "Crazyball": 9.81*random.uniform(0.5, 2) #crazyball gravity is random between 0.5 and 2 times earth gravity
+    }
     gravity_name = st.selectbox("Gravity", options=list(gravity_options.keys()), index=0)
     gravity = gravity_options[gravity_name]
     step = .1
@@ -112,22 +136,8 @@ def run_app():
             ball = Cannonball(0)
         xs, ys = ball.shoot(angle_rad, velocity, gravity, step)
 
-        if not xs:
-            st.warning("No trajectory points were generated.")
-            return
-
-        df = pd.DataFrame({"x": xs, "y": ys})
-
-        chart = (
-            alt.Chart(df)
-            .mark_line()
-            .encode(
-                x=alt.X("x:Q", scale=alt.Scale(domain=[0, 200]), title="Distance (m)"),
-                y=alt.Y("y:Q", scale=alt.Scale(domain=[0, 100]), title="Height (m)")
-            )
-            .properties(width=700, height=400)
-        )
-        st.altair_chart(chart, use_container_width=True)
+        print_iface = Print_Iface()
+        print_iface.main_print(xs, ys)
 
 
 if __name__ == "__main__":
